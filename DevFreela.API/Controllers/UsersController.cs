@@ -5,7 +5,13 @@ namespace DevFreela.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
+        [HttpPost]
+        public IActionResult Post()
+        {
+            return Ok();
+        }
+
     }
 }
