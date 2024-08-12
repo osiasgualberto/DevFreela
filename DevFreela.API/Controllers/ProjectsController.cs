@@ -1,6 +1,7 @@
 ﻿using DevFreela.API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace DevFreela.API.Controllers
 {
@@ -8,9 +9,15 @@ namespace DevFreela.API.Controllers
     [ApiController]
     public class ProjectsController : ControllerBase
     {
+        private readonly FreelanceTotalCostConfig _config;
+
+        public ProjectsController(IOptions<FreelanceTotalCostConfig> options)
+        {
+            _config = options.Value;
+        }
         //GEt api/projects?search=crm
         [HttpGet]
-        public IActionResult Get(string search)
+        public IActionResult Get(string search = "")
         {
             return Ok();
         }
@@ -24,7 +31,7 @@ namespace DevFreela.API.Controllers
         [HttpPost]
         public IActionResult Post(CreateProjectInputModel model)
         {
-            return CreatedAtAction(nameof(GetById),new { id = 1 }, model);
+            return CreatedAtAction(nameof(GetById), new { id = 1 }, model);
         }
 
         [HttpPut("{id}")]
@@ -40,7 +47,7 @@ namespace DevFreela.API.Controllers
         }
         //PUT api/projects/1234/start
         [HttpPut("{id}/start")]
-        public IActionResult Start(int id )
+        public IActionResult Start(int id)
         {
             return NoContent();
         }
