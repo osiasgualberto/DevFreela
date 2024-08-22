@@ -25,7 +25,7 @@ namespace DevFreela.API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            throw new Exception();
+            //throw new Exception();
             return Ok();
         }
 
@@ -33,6 +33,7 @@ namespace DevFreela.API.Controllers
         public IActionResult Post(CreateProjectInputModel model)
         {
             return CreatedAtAction(nameof(GetById), new { id = 1 }, model);
+            //return Ok();
         }
 
         [HttpPut("{id}")]
