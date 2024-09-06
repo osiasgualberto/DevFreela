@@ -9,11 +9,12 @@ namespace DevFreela.API.Controllers
     [ApiController]
     public class ProjectsController : ControllerBase
     {
-        private readonly FreelanceTotalCostConfig _config;
+        //private readonly FreelanceTotalCostConfig _config;
+        //private readonly IConfigService 
 
-        public ProjectsController(IOptions<FreelanceTotalCostConfig> options)
+        public ProjectsController()
         {
-            _config = options.Value;
+           
         }
         //GEt api/projects?search=crm
         [HttpGet]
