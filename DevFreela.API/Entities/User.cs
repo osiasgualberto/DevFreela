@@ -2,7 +2,7 @@
 {
     public class User : BaseEntity
     {
-        protected User(string fullName, string email, DateTime birthDate) : base()
+        public User(string fullName, string email, DateTime birthDate) : base()
         {
             FullName = fullName;
             Email = email;
@@ -14,6 +14,7 @@
             FreelanceProjects = [];
             Comments = [];
         }
+
         public string FullName { get; private set; }
         public string Email { get; private set; }
         public DateTime BirthDate { get; private set; }
