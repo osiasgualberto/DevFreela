@@ -17,6 +17,7 @@ builder.Services.AddDbContext<DevFreelaDbContext>(o => o.UseSqlServer(connection
 //Unico ponto de acesso
 builder.Services
     .AddApplication();
+    
 
 builder.Services.AddExceptionHandler<ApiExceptionHandler>();
 builder.Services.AddProblemDetails();

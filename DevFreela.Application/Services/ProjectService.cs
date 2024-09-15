@@ -14,19 +14,81 @@ namespace DevFreela.Application.Services
             _context = context;
         }
 
-        public ResultViewModel Complete(int id)
+        public ResultViewModel<List<ProjectItemViewModel>> GetAll(string search = "")
+        {
+            var projects = _context.Projects
+                .Include(p => p.Client)
+                .Include(p => p.Freelancer)
+                .Where(p => !p.IsDeleted).ToList();
+
+            var model = projects.Select(ProjectItemViewModel.FromEntity).ToList();
+
+            return ResultViewModel<List<ProjectItemViewModel>>.Success(model);
+
+        }
+
+        public ResultViewModel<ProjectViewModel> GetById(int id)
+        {
+            var project = _context.Projects
+                .Include(p => p.Client)
+                .Include(p => p.Freelancer)
+                .Include(p => p.Comments)
+                .SingleOrDefault(p => p.Id == id);
+
+            if (project is null)
+            {
+                return ResultViewModel<ProjectViewModel>.Error("Projeto não existe.");
+            }
+
+            var model = ProjectViewModel.FromEntity(project);
+
+            return ResultViewModel<ProjectViewModel>.Success(model);
+
+        }
+
+        public ResultViewModel<int> Insert(CreateProjectInputModel model)
+        {
+            var project = model.ToEntity();
+
+            _context.Projects.Add(project);
+            _context.SaveChanges();
+
+            return ResultViewModel<int>.Success(project.Id);
+
+
+        }
+
+        public ResultViewModel InsertComment(int id, CreateProjectCommentInputModel model)
         {
             var project = _context.Projects.SingleOrDefault(p => p.Id == id);
 
             if (project is null)
             {
-                return ResultViewModel.Error("Projeto nao existe.");
+                return ResultViewModel.Error("Projeto não existe.");
             }
-            project.Complete();
+
+            var comment = new ProjectComment(model.Content, model.IdProject, model.IdUser);
+
+            _context.ProjectComments.Add(comment);
+            _context.SaveChanges();
+
+            return ResultViewModel.Success();
+        }
+
+        public ResultViewModel Start(int id)
+        {
+            var project = _context.Projects.SingleOrDefault(p => p.Id == id);
+
+            if (project is null)
+            {
+                return ResultViewModel.Error("Projeto não existe.");
+            }
+
+            project.Start();
             _context.Projects.Update(project);
             _context.SaveChanges();
-            return ResultViewModel.Success();
 
+            return ResultViewModel.Success();
         }
 
         public ResultViewModel Delete(int id)
@@ -44,54 +106,10 @@ namespace DevFreela.Application.Services
 
             return ResultViewModel.Success();
 
-        }
-
-        public ResultViewModel<List<ProjectItemViewModel>> GetAll(string search = "")
-        {
-            //primeiro consultar o banco de dados onde chama os projetos nao deletados
-            var projects = _context.Projects
-                .Include(p => p.Client)
-                .Include(p => p.Freelancer)
-                .Where(p => !p.IsDeleted && (search == "" || p.Title.Contains(search) || p.Description.Contains(search)))
-                //.Skip(page * size)
-                //.Take(size)
-                .ToList();
-            var model = projects.Select(ProjectItemViewModel.FromEntity).ToList();
-
-            return ResultViewModel<List<ProjectItemViewModel>>.Success(model);
 
         }
 
-        public ResultViewModel<ProjectViewModel> GetById(int id)
-        {
-            var project = _context.Projects
-                .Include(p => p.Client)
-                .Include(p => p.Freelancer)
-                .Include(p => p.Comments)
-                .SingleOrDefault(p => p.Id == id);
-
-            if (project is null)
-            {
-                return ResultViewModel<ProjectViewModel>.Error("Projeto nao Existe.");
-            }
-
-
-            var model = ProjectViewModel.FromEntity(project);
-
-            return ResultViewModel<ProjectViewModel>.Success(model);
-
-        }
-
-        public ResultViewModel<int> Insert(CreateProjectInputModel model)
-        {
-            var project = model.ToEntity();
-            _context.Projects.Add(project);
-            _context.SaveChanges();
-
-            return ResultViewModel<int>.Success(project.Id);
-        }
-
-        public ResultViewModel InsertComment(int id, CreateProjectCommentInputModel model)
+        public ResultViewModel Complete(int id)
         {
             var project = _context.Projects.SingleOrDefault(p => p.Id == id);
 
@@ -99,24 +117,9 @@ namespace DevFreela.Application.Services
             {
                 return ResultViewModel.Error("Projeto nao existe.");
             }
-
-            var comment = new ProjectComment(model.Content, model.IdProject, model.IdUser);
-            _context.ProjectComments.Add(comment);
-            _context.SaveChanges();
-            return ResultViewModel.Success();
-
-        }
-
-        public ResultViewModel Start(int id)
-        {
-            var project = _context.Projects.SingleOrDefault(p => p.Id == id);
-
-            if (project is null)
-            {
-                return ResultViewModel.Error("Projeto nao existe.");
-            }
-            project.Start();
+            project.Complete();
             _context.Projects.Update(project);
+
             _context.SaveChanges();
             return ResultViewModel.Success();
 
@@ -131,11 +134,12 @@ namespace DevFreela.Application.Services
                 return ResultViewModel.Error("Projeto nao existe.");
             }
             project.Update(model.Title, model.Description, model.TotalCost);
+
             _context.Projects.Update(project);
-            _context.SaveChanges();
+
+            _context.SaveChangesAsync();
 
             return ResultViewModel.Success();
-
         }
     }
 }
